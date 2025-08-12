@@ -29,13 +29,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: 建置 Vue 專案
+      # Step 4: 建置 Nuxt 專案
       - name: Build
-        run: npm run build
+        run: npm run generate
 
       # Step 5: 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist # 建置後的檔案位於 dist 目錄
+          publish_dir: ./.output/public # 針對 Nuxt 3 專案的部署目錄

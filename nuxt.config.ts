@@ -4,6 +4,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
 
+  app: {
+    baseURL: '/test_frontend_v2/',
+  },
+
   modules: ['@nuxtjs/i18n', '@pinia/nuxt', '@nuxt/image', '@unocss/nuxt', '@nuxtjs/google-fonts'],
 
   googleFonts: {

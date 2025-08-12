@@ -1,10 +1,10 @@
 name: Deploy to GitHub Pages
 
-# 設定觸發條件，當 push 到 main 分支時執行此 workflow
+# 設定觸發條件，當 push 到 master 分支時執行此 workflow
 on:
   push:
     branches:
-      - main
+      - master
 
 # 設定執行權限
 permissions:

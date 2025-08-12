@@ -48,10 +48,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 // 生成唯一 ID
-const fieldId = computed(() => {
-  if (props.id) return props.id
-  return `field-${Math.random().toString(36).substr(2, 9)}`
-})
+const fieldId = ref(props.id)
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement

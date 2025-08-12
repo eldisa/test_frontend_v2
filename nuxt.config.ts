@@ -72,12 +72,11 @@ export default defineNuxtConfig({
         },
       },
       'postcss-nested': {},
-      'postcss-pxtorem': {
-        // 更正插件名稱
-        rootValue: 16,
-        propList: ['*'],
-        exclude: /node_modules/i,
-      },
+      // 'postcss-pxtorem': {
+      //   rootValue: 16,
+      //   propList: ['*'],
+      //   exclude: /node_modules/i,
+      // },
       autoprefixer: {
         overrideBrowserslist: ['last 2 versions', '> 1%'],
       },

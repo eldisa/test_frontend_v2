@@ -38,6 +38,7 @@
 
     <!-- User List Table -->
     <div class="w-full max-w-[600px] mt-8 p-6 bg-gray-800 rounded-xl shadow-lg">
+      <h2 class="text-xl font-bold mb-4 text-center">使用者資料</h2>
       <table class="w-full text-center table-auto">
         <thead>
           <tr class="text-gray-400 border-b border-gray-700">
@@ -48,7 +49,13 @@
           </tr>
         </thead>
         <tbody>
+          <!-- 顯示載入狀態 -->
+          <tr v-if="isLoading">
+            <td colspan="4" class="py-4 text-center text-gray-500">載入中...</td>
+          </tr>
+          <!-- 顯示使用者清單 -->
           <tr
+            v-else
             v-for="(user, index) in users"
             :key="user.id"
             class="border-b border-gray-700 last:border-b-0"
@@ -68,7 +75,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import ETextField from '~/components/ETextField.vue'
 import EBtn from '~/components/EBtn.vue'
 
@@ -78,22 +86,21 @@ interface User {
   age: number
 }
 
+const API_URL = 'https://3559.wu.elitepro.ltd/api/user'
+
 const userName = ref('')
 const userAge = ref<number | string>('')
 const nameError = ref('')
 const ageError = ref('')
 
-// --- New state for handling CRUD operations ---
-const users = ref<User[]>([
-  { id: 1, name: '林建智', age: 16 },
-  { id: 2, name: '吳政貞', age: 19 },
-  { id: 3, name: '楊柏宏', age: 18 },
-  { id: 4, name: '李建宇', age: 20 },
-  { id: 5, name: '蘇名正', age: 15 },
-])
+// 處理載入狀態
+const isLoading = ref(true)
+
+// 存放使用者清單
+const users = ref<User[]>([])
 const editingUserId = ref<number | null>(null)
 
-// --- Validation Logic (re-organized) ---
+// --- Validation Logic ---
 const validateForm = () => {
   nameError.value = ''
   ageError.value = ''
@@ -113,36 +120,92 @@ const validateForm = () => {
   return isValid
 }
 
+// --- API Calls (Axios) ---
 // --- CRUD Operations ---
-const handleAdd = () => {
-  if (!validateForm()) return
 
-  const newUser: User = {
-    id: users.value.length + 1,
-    name: userName.value,
-    age: Number(userAge.value),
+const fetchUsers = async () => {
+  isLoading.value = true
+  try {
+    const response = await axios.get(API_URL)
+    users.value = response.data.data || []
+  } catch (error) {
+    console.error('取得使用者清單失敗:', error)
+  } finally {
+    isLoading.value = false
   }
-  users.value.push(newUser)
-  resetForm()
-  alert(`提交成功！新增使用者: ${userName.value}`)
 }
 
-const handleUpdate = () => {
+const handleAdd = async () => {
+  if (!validateForm()) return
+
+  try {
+    const response = await axios.post(API_URL, {
+      name: userName.value,
+      age: Number(userAge.value),
+    })
+    // 直接更新本地資料，避免重新載入整個表格
+    if (response.data.code === 200) {
+      users.value.push({
+        id: users.value.length + 1,
+        name: userName.value,
+        age: Number(userAge.value),
+      })
+    }
+
+    resetForm()
+    alert(`新增使用者成功！`)
+  } catch (error) {
+    console.error('新增使用者失敗:', error)
+    alert('新增使用者失敗！')
+  }
+}
+
+const handleUpdate = async () => {
   if (!validateForm()) return
   if (editingUserId.value === null) return
 
-  const userIndex = users.value.findIndex((user) => user.id === editingUserId.value)
-  if (userIndex !== -1) {
-    users.value[userIndex].name = userName.value
-    users.value[userIndex].age = Number(userAge.value)
+  try {
+    const response = await axios.put(API_URL, {
+      id: editingUserId.value,
+      name: userName.value,
+      age: Number(userAge.value),
+    })
+    // 直接更新本地資料，避免重新載入整個表格
+    if (response.data.code === 200) {
+      const index = users.value.findIndex((user) => user.id === editingUserId.value)
+      if (index !== -1) {
+        users.value[index] = {
+          ...users.value[index],
+          name: userName.value,
+          age: Number(userAge.value),
+        }
+      }
+    }
+
+    alert(`更新使用者成功！`)
+  } catch (error) {
+    console.error('更新使用者失敗:', error)
+    alert('更新使用者失敗！')
   }
-  resetForm()
-  alert(`提交成功！更新使用者: ${userName.value}`)
 }
 
-const handleDelete = (userToDelete: User) => {
-  if (confirm(`確定要刪除使用者 ${userToDelete.name} 嗎？`)) {
-    users.value = users.value.filter((user) => user.id !== userToDelete.id)
+const handleDelete = async (userToDelete: User) => {
+  const isConfirmed = window.confirm(`確定要刪除使用者 ${userToDelete.name} 嗎？`)
+  if (!isConfirmed) return
+
+  try {
+    const response = await axios.delete(API_URL, {
+      data: { id: userToDelete.id },
+    })
+    // 直接更新本地資料，避免重新載入整個表格
+    if (response.data.code === 200) {
+      users.value = users.value.filter((user) => user.id !== userToDelete.id)
+    }
+
+    alert(`刪除使用者成功！`)
+  } catch (error) {
+    console.error('刪除使用者失敗:', error)
+    alert('刪除使用者失敗！')
   }
 }
 
@@ -165,8 +228,16 @@ const resetForm = () => {
 }
 
 const handleSubmit = () => {
-  handleAdd()
+  if (editingUserId.value === null) {
+    handleAdd()
+  } else {
+    handleUpdate()
+  }
 }
+
+onMounted(() => {
+  fetchUsers()
+})
 </script>
 
 <style scoped>

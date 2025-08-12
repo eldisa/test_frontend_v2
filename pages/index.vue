@@ -37,15 +37,15 @@
     </div>
 
     <!-- User List Table -->
-    <div class="w-full max-w-[600px] mt-8 p-6 bg-gray-800 rounded-xl shadow-lg">
+    <div class="w-full max-w-[600px] mt-8 p-6 bg-gray-800 rounded-xl shadow-lg overflow-x-auto">
       <h2 class="text-xl font-bold mb-4 text-center">使用者資料</h2>
       <table class="w-full text-center table-auto">
         <thead>
           <tr class="text-gray-400 border-b border-gray-700">
-            <th class="py-2 px-4 w-1/12">#</th>
-            <th class="py-2 px-4 w-5/12">名字</th>
-            <th class="py-2 px-4 w-2/12">年齡</th>
-            <th class="py-2 px-4 w-4/12">操作</th>
+            <th class="py-2 px-4 w-1/12 min-w-[50px]">#</th>
+            <th class="py-2 px-4 w-5/12 min-w-[100px]">名字</th>
+            <th class="py-2 px-4 w-2/12 min-w-[70px]">年齡</th>
+            <th class="py-2 px-4 w-4/12 min-w-[150px]">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -60,9 +60,9 @@
             :key="user.id"
             class="border-b border-gray-700 last:border-b-0"
           >
-            <td class="py-3 px-4 w-2/12">{{ index + 1 }}</td>
-            <td class="py-3 px-4 w-4/12">{{ user.name }}</td>
-            <td class="py-3 px-4 w-2/12">{{ user.age }}</td>
+            <td class="py-3 px-4">{{ index + 1 }}</td>
+            <td class="py-3 px-4">{{ user.name }}</td>
+            <td class="py-3 px-4">{{ user.age }}</td>
             <td class="py-3 px-4 flex justify-end space-x-2">
               <EBtn color="success" @click="handleEdit(user)"> 修改 </EBtn>
               <EBtn color="error" @click="handleDelete(user)"> 刪除 </EBtn>
